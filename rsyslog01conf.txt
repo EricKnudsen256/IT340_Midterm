@@ -1,0 +1,22 @@
+$ModLoad imuxsock.so
+$ModLoad imklog.so
+
+# Provides UDP syslog reception
+$ModLoad imudp.so
+module(load="imudp")  
+# The port where to listen
+$UDPServerRun 514
+
+# Write all apache logs to this file (please note the comma)
+input(type="imudp"port="514")
+$template apacheAccess,"/var/log/apache_access.log"
+
+# If the log's tag is "apache" and matches
+# the defined level, send it to a specific file
+if $syslogtag == 'apache' then {
+    local6.info ?apacheAccess
+    & ~
+}
+
+*.* @127.0.0.1:514
+local6.info @127.0.0.1:514
